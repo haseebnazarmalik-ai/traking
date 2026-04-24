@@ -7,8 +7,6 @@
     <title>Kitchen Tracker Pro</title>
     <script>
         // PWA Service Worker Registration
-
-    <script>
         const APP_CONFIG = {
             // Firebase Configuration (Naye project ki details yahan dalein)
             firebase: {
@@ -29,6 +27,10 @@
                 { name: "Arsalan", email: "arslanahmed921@gmail.com", isAdmin: false }
             ]
         };
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
