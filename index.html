@@ -5,31 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#075e54">
     <title>Kitchen Tracker Pro</title>
+       <link rel="manifest" href="manifest.json">
+    
     <script>
         // PWA Service Worker Registration
         const APP_CONFIG = {
-            // Firebase Configuration (Naye project ki details yahan dalein)
             firebase: {
                 apiKey: "AIzaSyDjbeDNsTEtmyY0ecRYjPXO4J022mJ0tZ8",
-  authDomain: "waqar-fbf0b.firebaseapp.com",
-  databaseURL: "https://waqar-fbf0b-default-rtdb.firebaseio.com",
-  projectId: "waqar-fbf0b",
-  storageBucket: "waqar-fbf0b.firebasestorage.app",
-  messagingSenderId: "372078876980",
-  appId: "1:372078876980:web:302ef2f9a946c75341ed61",
+                authDomain: "waqar-fbf0b.firebaseapp.com",
+                databaseURL: "https://waqar-fbf0b-default-rtdb.firebaseio.com",
+                projectId: "waqar-fbf0b",
+                storageBucket: "waqar-fbf0b.firebasestorage.app",
+                messagingSenderId: "372078876980",
+                appId: "1:372078876980:web:302ef2f9a946c75341ed61",
                 measurementId: "" 
             },
-
-            // Users, Emails & Admin Status
             users: [
-                { name: "Waqar", email: "waqarkhan4862@gmail.com", isAdmin: true }, // <--- Ye Admin hai (Haseeb)
+                { name: "Waqar", email: "waqarkhan4862@gmail.com", isAdmin: true },
                 { name: "Haashir", email: "khanmannu888@gmail.com", isAdmin: false },
                 { name: "Arsalan", email: "arslanahmed921@gmail.com", isAdmin: false }
             ]
         };
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('SW Registered!');
+                }).catch(err => console.log('SW Failed', err));
+            });
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
