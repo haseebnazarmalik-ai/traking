@@ -5,21 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#075e54">
-    <title>Kitchen Tracker Pro v2.5</title>
+    <title>Kitchen Tracker Pro v2.6</title>
 
     <script>
-        // ==========================================
-        // 1. ADMIN CONFIGURATION (Yahan apni detail dalein)
-        // ==========================================
-        const ADMIN_DETAILS = {
-            name: "Waqar", 
-            email: "waqar@gmail.com", // <-- Apna Login Email yahan likhein
-            isAdmin: true
-        };
+        // --- ADMIN CONFIG (Apna Email Yahan Likhein) ---
+        const ADMIN_EMAIL = "waqar@gmail.com"; 
 
-        // ==========================================
-        // 2. FIREBASE API (Waqar Project)
-        // ==========================================
         const APP_CONFIG = {
             firebase: {
                 apiKey: "AIzaSyDjbeDNsTEtmyY0ecRYjPXO4J022mJ0tZ8",
@@ -30,11 +21,6 @@
                 appId: "1:372078876980:web:302ef2f9a946c75341ed61"
             }
         };
-
-        // PWA Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
-        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -42,75 +28,79 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* WhatsApp Theme Styles */
-        body { font-family: 'Segoe UI', sans-serif; background: #e5ddd5; margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        #loginPage, #mainApp { display: none; width: 100%; height: 100vh; }
-        #loader { display: flex; position: fixed; top:0; left:0; width:100%; height:100%; background:#e5ddd5; z-index:10000; align-items:center; justify-content:center; flex-direction:column; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #075e54; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* --- ORIGINAL v1.6 DESIGN RESTORED --- */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e5ddd5; margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .header { background: #075e54; color: white; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; width: 100%; z-index: 1000; height: 55px; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tabs { display: flex; background: #075e54; position: fixed; top: 55px; width: 100%; z-index: 999; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .tab { flex: 1; text-align: center; padding: 14px 10px; color: #b1d4d0; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; font-size: 11px; white-space: nowrap; min-width: 90px; }
+        .tab.active { color: white; border-bottom: 3px solid white; background: rgba(255,255,255,0.05); }
 
-        .header { background: #075e54; color: white; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; width: 100%; z-index: 1000; height: 55px; box-sizing: border-box; }
-        .tabs { display: flex; background: #075e54; position: fixed; top: 55px; width: 100%; z-index: 999; overflow-x: auto; scrollbar-width: none; }
-        .tab { flex: 1; text-align: center; padding: 14px 10px; color: #b1d4d0; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; font-size: 11px; white-space: nowrap; min-width: 90px; transition: 0.3s; }
-        .tab.active { color: white; border-bottom: 3px solid white; background: rgba(255,255,255,0.1); }
+        #swipeWrapper { display: flex; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); margin-top: 105px; width: 100%; }
+        .content { width: 100%; flex-shrink: 0; padding: 15px; padding-bottom: 130px; box-sizing: border-box; min-height: 80vh; }
 
-        #swipeWrapper { display: flex; transition: transform 0.4s ease-out; margin-top: 105px; width: 100%; }
-        .content { width: 100%; flex-shrink: 0; padding: 15px; padding-bottom: 120px; box-sizing: border-box; min-height: 80vh; }
-
-        .card { background: white; padding: 18px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .card input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 15px; outline: none; }
-        .btn { width: 100%; background: #25d366; color: white; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .input-card { background: white; padding: 18px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .input-card input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 15px; outline: none; }
+        .save-btn { width: 100%; background: #25d366; color: white; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        .admin-section { border: 2px dashed #075e54; background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .total-banner { background: #dcf8c6; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; color: #075e54; margin-bottom: 15px; }
-
-        li { background: white; padding: 12px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #075e54; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 1000; }
+        .user-total-info { background: #dcf8c6; padding: 14px; border-radius: 12px; text-align: center; font-weight: 800; margin-bottom: 15px; color: #075e54; border: 1px solid #c1e0a8; }
+        li { background: white; padding: 15px; margin-bottom: 12px; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid #075e54; box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
         
-        .adjustment-box { background: #f0f0f0; padding: 15px; border-radius: 15px; border: 1px solid #ccc; margin-bottom: 20px; }
-        .red { color: #d32f2f; } .green { color: #388e3c; }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:11000; align-items:center; justify-content:center; }
+        .footer-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; border-top: 1px solid #eee; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        
+        /* Modal Style for Settings */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 11000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; max-height: 80vh; overflow-y: auto; }
+        
+        #loginPage { display: flex; position: fixed; top:0; left:0; width:100%; height:100%; background:#075e54; align-items:center; justify-content:center; z-index:12000; }
+        .settings-icon { font-size: 22px; cursor: pointer; padding: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader"><div class="spinner"></div><p>Loading System...</p></div>
-
-<div id="loginPage" style="display:flex; background:#075e54; align-items:center; justify-content:center;">
-    <div style="background:white; padding:30px; border-radius:20px; width:85%; max-width:340px; text-align:center;">
-        <h2 style="color:#075e54;">Kitchen Login</h2>
-        <input type="email" id="logEmail" placeholder="Email" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
-        <input type="password" id="logPass" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #ddd;">
-        <button class="btn" onclick="userLogin()">LOGIN</button>
+<div id="loginPage">
+    <div style="background:white; padding:35px; border-radius:25px; width:85%; max-width:340px; text-align:center;">
+        <h2 style="color:#075e54;">Kitchen Pro Login</h2>
+        <input type="email" id="logEmail" placeholder="Email Address" style="width:100%; padding:14px; margin-bottom:12px; border-radius:10px; border:1px solid #eee;">
+        <input type="password" id="logPass" placeholder="Password" style="width:100%; padding:14px; margin-bottom:20px; border-radius:10px; border:1px solid #eee;">
+        <button class="save-btn" onclick="handleLogin()">LOGIN</button>
     </div>
 </div>
 
-<div id="mainApp">
+<div id="mainApp" style="display:none;">
     <div class="header">
-        <h3 style="margin:0; font-size:16px;">Hello, <span id="uDisplayName">User</span></h3>
-        <div style="display:flex; gap:8px;">
-            <select id="monthSelect" onchange="syncData()" style="padding:4px; border-radius:5px; font-size:10px;"></select>
-            <button onclick="handleLogout()" style="background:red; color:white; border:none; padding:5px 8px; border-radius:5px; font-size:10px;">OUT</button>
+        <h1 style="font-size: 17px; margin: 0;">Hi, <span id="headerName">User</span> 🥘</h1>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <select id="monthFilter" onchange="loadAppData()" style="padding:5px; border-radius:5px; border:none; font-size:11px;"></select>
+            <div id="adminIcon" style="display:none;" onclick="toggleModal('adminModal', true)" class="settings-icon">⚙️</div>
+            <button onclick="logout()" style="background:#e53935; color:white; border:none; padding:6px 10px; border-radius:8px; font-size:11px;">OUT</button>
         </div>
     </div>
 
-    <div class="tabs" id="tabBar"></div>
+    <div class="tabs" id="tabsBar"></div>
     <div id="swipeWrapper"></div>
 
-    <div class="footer">
-        <div style="font-weight:900; color:#075e54;">TOTAL: SAR <span id="grandTotal">0</span></div>
-        <div id="messStatus" style="display:none; font-size:12px; background:#fff3e0; padding:5px 10px; border-radius:10px; border:1px solid #ffcc80;" onclick="showMessModal()">
-            Pending Mess: <b id="messVal">0</b>
+    <div class="footer-fixed">
+        <div style="max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 900; font-size: 16px; color:#075e54;">TOTAL: SAR <span id="grandTotal">0</span></div>
+            <div id="messBox" style="display:none; background:#fff3e0; padding:8px 12px; border-radius:10px; border:1px solid #ffe0b2;" onclick="toggleModal('messModal', true)">
+                <small style="color:#e65100;">MESS PENDING</small><br>
+                <b id="messVal" style="color:#bf360c;">0</b>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="messModal" class="modal">
-    <div style="background:white; padding:20px; border-radius:15px; width:280px; text-align:center;">
-        <h3>Mess Payment</h3>
-        <input type="number" id="payInput" placeholder="Amount" style="width:100%; padding:10px; margin-bottom:10px;">
-        <button class="btn" onclick="payMess()">Confirm Paid</button>
-        <button onclick="closeMess()" style="border:none; background:none; margin-top:10px; color:gray;">Cancel</button>
+<div id="adminModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color:#075e54; margin-top:0;">User Management</h3>
+        <p style="font-size:12px; color:gray;">Add new users and set their passwords.</p>
+        <input type="text" id="newUserName" placeholder="Name" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+        <input type="email" id="newUserEmail" placeholder="Email" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+        <input type="text" id="newUserPass" placeholder="Set Password" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+        <button class="save-btn" onclick="addNewUser()">CREATE USER TAB</button>
+        <hr>
+        <div id="existingUsersList"></div>
+        <button onclick="toggleModal('adminModal', false)" style="width:100%; background:none; border:none; margin-top:15px; color:gray;">Close Settings</button>
     </div>
 </div>
 
@@ -123,186 +113,149 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let users = [];
+    let activeUsers = [];
     let currentUser = null;
-    let currentSlide = 0;
-    let allEntries = [];
+    let currentTabIdx = 0;
 
-    // --- Auth State ---
+    // --- Authentication ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Auto-Register Admin if matches
-            if (user.email.toLowerCase() === ADMIN_DETAILS.email.toLowerCase()) {
-                await setDoc(doc(db, "users", "admin_root"), ADMIN_DETAILS, {merge: true});
-            }
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            await startApp(user.email);
+            await startSystem(user.email);
         } else {
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loader').style.display = 'none';
         }
     });
 
-    window.userLogin = () => {
+    window.handleLogin = () => {
         const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
-        signInWithEmailAndPassword(auth, e, p).catch(() => alert("Invalid Login"));
+        signInWithEmailAndPassword(auth, e, p).catch(() => alert("Login Failed!"));
     };
-    window.handleLogout = () => signOut(auth);
+    window.logout = () => signOut(auth);
 
-    // --- Start App ---
-    async function startApp(email) {
+    // --- Core Startup ---
+    async function startSystem(email) {
         const snap = await getDocs(collection(db, "users"));
-        users = snap.docs.map(d => ({id: d.id, ...d.data()}));
-        currentUser = users.find(u => u.email.toLowerCase() === email.toLowerCase()) || {name: "Guest", isAdmin: false};
-        
-        document.getElementById('uDisplayName').innerText = currentUser.name;
+        activeUsers = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        currentUser = activeUsers.find(u => u.email.toLowerCase() === email.toLowerCase()) || {name: "Guest"};
 
-        // Month Picker
-        const sel = document.getElementById('monthSelect');
-        if(sel.options.length === 0) {
-            for(let i=0; i<6; i++) {
+        document.getElementById('headerName').innerText = currentUser.name;
+        if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            document.getElementById('adminIcon').style.display = 'block';
+        }
+
+        // Month Filter
+        const filter = document.getElementById('monthFilter');
+        if(filter.options.length === 0) {
+            for(let i=0; i<6; i++){
                 const d = new Date(); d.setMonth(d.getMonth()-i);
                 const m = `${d.toLocaleString('default',{month:'short'})} ${d.getFullYear()}`;
-                sel.innerHTML += `<option value="${m}">${m}</option>`;
+                filter.innerHTML += `<option value="${m}">${m}</option>`;
             }
         }
 
-        buildUI();
-        syncData();
-        listenMess();
-        document.getElementById('loader').style.display = 'none';
+        renderUI();
+        loadAppData();
     }
 
-    function buildUI() {
-        const bar = document.getElementById('tabBar');
+    function renderUI() {
+        const bar = document.getElementById('tabsBar');
         const wrap = document.getElementById('swipeWrapper');
         bar.innerHTML = ""; wrap.innerHTML = "";
-        
-        wrap.style.width = `${(users.length + 1) * 100}%`;
+        wrap.style.width = `${(activeUsers.length + 1) * 100}%`;
 
-        users.forEach((u, i) => {
-            bar.innerHTML += `<div class="tab ${i===currentSlide?'active':''}" onclick="moveSlide(${i})">${u.name.toUpperCase()}</div>`;
-            
+        activeUsers.forEach((u, i) => {
+            bar.innerHTML += `<div class="tab ${i===0?'active':''}" id="t_${i}" onclick="goToTab(${i})">${u.name.toUpperCase()}</div>`;
             const div = document.createElement('div');
             div.className = "content";
             div.innerHTML = `
-                ${u.isAdmin && u.email === currentUser.email ? `
-                    <div class="admin-section">
-                        <b>Add New User Tab:</b>
-                        <input type="text" id="newN" placeholder="Name">
-                        <input type="email" id="newE" placeholder="Email">
-                        <button class="btn" style="padding:8px;" onclick="addNewUserTab()">+ CREATE TAB</button>
-                    </div>
-                ` : ''}
                 ${u.email === currentUser.email ? `
-                    <div class="card">
+                    <div class="input-card">
                         <input type="text" id="it_${u.id}" placeholder="Item Name">
-                        <input type="number" id="pr_${u.id}" placeholder="Price">
-                        <button class="btn" onclick="saveData('${u.name}', '${u.id}')">SAVE</button>
+                        <input type="number" id="pr_${u.id}" placeholder="Amount">
+                        <button class="save-btn" onclick="saveExpense('${u.name}', '${u.id}')">SAVE ENTRY</button>
                     </div>
                 ` : ''}
-                <div class="total-banner">${u.name}'s Total: SAR <span id="sum_${u.id}">0</span></div>
+                <div class="user-total-info">${u.name} Total: SAR <span id="sum_${u.id}">0</span></div>
                 <div id="list_${u.id}"></div>
             `;
             wrap.appendChild(div);
         });
 
-        bar.innerHTML += `<div class="tab" onclick="moveSlide(${users.length})">📊 STATS</div>`;
-        const statsDiv = document.createElement('div');
-        statsDiv.className = "content";
-        statsDiv.innerHTML = `<div class="adjustment-box" id="adjResult"></div><canvas id="myChart"></canvas>`;
-        wrap.appendChild(statsDiv);
+        bar.innerHTML += `<div class="tab" id="t_stats" onclick="goToTab(${activeUsers.length})">📊 STATS</div>`;
+        const stats = document.createElement('div');
+        stats.className = "content";
+        stats.innerHTML = `<div id="adjBox" class="user-total-info" style="background:#f0f0f0; text-align:left;"></div><canvas id="dailyChart"></canvas>`;
+        wrap.appendChild(stats);
     }
 
-    // --- Actions ---
-    window.addNewUserTab = async () => {
-        const n = document.getElementById('newN').value, e = document.getElementById('newE').value;
-        if(n && e) {
-            await addDoc(collection(db, "users"), {name: n, email: e, isAdmin: false});
-            alert("User Tab Created!"); location.reload();
-        }
+    // --- Admin Functions ---
+    window.addNewUser = async () => {
+        const name = document.getElementById('newUserName').value;
+        const email = document.getElementById('newUserEmail').value;
+        const pass = document.getElementById('newUserPass').value;
+        if(!name || !email || !pass) return alert("Fill all fields!");
+
+        await addDoc(collection(db, "users"), { name, email, password: pass, isAdmin: false });
+        alert("User Created! Note: You must also add this email in Firebase Auth Console with the same password.");
+        location.reload();
     };
 
-    window.saveData = async (name, id) => {
+    window.toggleModal = (id, show) => document.getElementById(id).style.display = show ? 'flex' : 'none';
+
+    // --- Data Management ---
+    window.saveExpense = async (name, id) => {
         const item = document.getElementById(`it_${id}`).value;
         const price = document.getElementById(`pr_${id}`).value;
-        const month = document.getElementById('monthSelect').value;
+        const month = document.getElementById('monthFilter').value;
         if(!item || !price) return;
 
         await addDoc(collection(db, "kitchenExpenses"), {
             user: name, item, price: Number(price), time: Date.now(), monthLabel: month
         });
-
-        if(currentUser.isAdmin && item.toLowerCase().includes('mess')) {
-            const mRef = doc(db, "messData", "balance");
-            const ds = await getDoc(mRef);
-            await setDoc(mRef, { pending: (ds.exists()?ds.data().pending:0) + Number(price) });
-        }
         document.getElementById(`it_${id}`).value = ""; document.getElementById(`pr_${id}`).value = "";
     };
 
-    function syncData() {
-        const m = document.getElementById('monthSelect').value;
+    function loadAppData() {
+        const m = document.getElementById('monthFilter').value;
         onSnapshot(query(collection(db, "kitchenExpenses"), orderBy("time", "desc")), (snap) => {
-            allEntries = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            const filtered = allEntries.filter(e => e.monthLabel === m);
-            
-            let gt = 0;
-            users.forEach(u => {
-                const uEntries = filtered.filter(e => e.user === u.name);
-                const uSum = uEntries.reduce((a, b) => a + b.price, 0);
-                gt += uSum;
+            const data = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(e => e.monthLabel === m);
+            let total = 0;
+            activeUsers.forEach(u => {
+                const uData = data.filter(e => e.user === u.name);
+                const uSum = uData.reduce((a, b) => a + b.price, 0);
+                total += uSum;
                 document.getElementById(`sum_${u.id}`).innerText = uSum.toFixed(2);
                 
                 const list = document.getElementById(`list_${u.id}`);
                 list.innerHTML = "";
-                uEntries.forEach(item => {
-                    list.innerHTML += `<li><span>${item.item}</span><b>SAR ${item.price} ${currentUser.name===item.user?`<button onclick="delEntry('${item.id}')" style="border:none;color:red;margin-left:10px;">×</button>`:''}</b></li>`;
+                uData.forEach(item => {
+                    list.innerHTML += `<li><span>${item.item}</span><b>SAR ${item.price} ${currentUser.name===item.user?`<button onclick="delEx('${item.id}')" style="border:none;color:red;background:none;font-weight:bold;">×</button>`:''}</b></li>`;
                 });
             });
-            document.getElementById('grandTotal').innerText = gt.toFixed(2);
-            calcStats(filtered, gt);
+            document.getElementById('grandTotal').innerText = total.toFixed(2);
+            updateStats(data, total);
         });
     }
 
-    window.delEntry = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "kitchenExpenses", id)); };
+    window.delEx = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "kitchenExpenses", id)); };
 
-    function calcStats(data, total) {
-        const share = total / (users.length || 1);
-        const adj = document.getElementById('adjResult');
-        adj.innerHTML = `<h4>ADJUSTMENTS</h4><p>Per Head: <b>SAR ${share.toFixed(2)}</b></p>`;
-        users.forEach(u => {
+    function updateStats(data, total) {
+        const share = total / (activeUsers.length || 1);
+        const box = document.getElementById('adjBox');
+        box.innerHTML = `<h4 style="margin:0;">Share: SAR ${share.toFixed(2)}</h4><hr>`;
+        activeUsers.forEach(u => {
             const uSum = data.filter(e => e.user === u.name).reduce((a, b) => a + b.price, 0);
             const diff = share - uSum;
-            adj.innerHTML += `<div class="${diff>0?'red':'green'}">${u.name}: ${diff>0?'Pay':'Owed'} SAR ${Math.abs(diff).toFixed(2)}</div>`;
+            box.innerHTML += `<div style="color:${diff>0?'#d32f2f':'#388e3c'}">${u.name}: ${diff>0?'Pay':'Owed'} SAR ${Math.abs(diff).toFixed(2)}</div>`;
         });
     }
 
-    window.moveSlide = (idx) => {
-        currentSlide = idx;
-        document.getElementById('swipeWrapper').style.transform = `translateX(-${(idx * 100) / (users.length + 1)}%)`;
+    window.goToTab = (idx) => {
+        document.getElementById('swipeWrapper').style.transform = `translateX(-${(idx * 100) / (activeUsers.length + 1)}%)`;
         document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-    };
-
-    function listenMess() {
-        onSnapshot(doc(db, "messData", "balance"), (ds) => {
-            const b = ds.exists() ? ds.data().pending : 0;
-            document.getElementById('messStatus').style.display = b > 0 ? 'block' : 'none';
-            document.getElementById('messVal').innerText = b.toFixed(2);
-        });
-    }
-
-    window.showMessModal = () => document.getElementById('messModal').style.display = 'flex';
-    window.closeMess = () => document.getElementById('messModal').style.display = 'none';
-    window.payMess = async () => {
-        const val = document.getElementById('payInput').value;
-        if(!val) return;
-        const mRef = doc(db, "messData", "balance");
-        const ds = await getDoc(mRef);
-        await setDoc(mRef, { pending: (ds.data().pending) - Number(val) });
-        closeMess();
     };
 
 </script>
