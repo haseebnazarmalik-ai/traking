@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#075e54">
     <title>Kitchen Tracker Pro</title>
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
 
     <script>
         const APP_CONFIG = {
@@ -22,9 +29,9 @@
 
             // Users, Emails & Admin Status
             users: [
-                { name: "waqar", email: "waqar@gmail.com", isAdmin: true }, // <--- Ye Admin hai (Haseeb)
-                { name: "waqar1", email: "waqar2@gmail.com", isAdmin: false },
-                { name: "waqar2", email: "waqar3@gmail.com", isAdmin: false }
+                { name: "Waqar", email: "waqarkhan4862@gmail.com", isAdmin: true }, // <--- Ye Admin hai (Haseeb)
+                { name: "Haashir", email: "khanmannu888@gmail.com", isAdmin: false },
+                { name: "Arsalan", email: "arslanahmed921@gmail.com", isAdmin: false }
             ]
         };
     </script>
